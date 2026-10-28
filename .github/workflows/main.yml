@@ -1,0 +1,33 @@
+name: Build mod
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test-logic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and run logic tests
+        run: |
+          g++ -std=c++17 -o test_fall test_fall_logic.cpp
+          ./test_fall
+
+  build-so:
+    runs-on: ubuntu-latest
+    needs: test-logic
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch AML headers
+        run: |
+          git clone --depth 1 https://github.com/RusJJ/AndroidModLoader.git /tmp/aml
+          mkdir -p mod
+          cp -r /tmp/aml/mod/* mod/
+      - name: Build with ndk-build
+        run: |
+          "$ANDROID_NDK_HOME/ndk-build" NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk NDK_APPLICATION_MK=Application.mk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FallSoft-so
+          path: libs/**/*.so
