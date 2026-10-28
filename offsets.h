@@ -1,23 +1,18 @@
 // offsets.h
-// عناوين وأوفسيتات خاصة بنسخة اللعبة عندك. القيم 0 = غير مضبوطة، والمود لن يضع hook عليها.
-// تجدها بتحليل libGTASA.so في Ghidra ومقارنة البنية مع plugin-sdk (CPed / CPhysical).
-// تأكد دائماً من النسخة (مثلاً 2.00 ARM32 أو 64-bit) فالقيم تختلف بين النسخ.
+// أسماء رموز (symbols) مُصدَّرة من libGTASA.so نسخة 2.00 (32 بت)، أُخذت بفحص الملف نفسه.
+// لا حاجة لعناوين رقمية: يجلب المود العنوان بالاسم وقت التشغيل عبر aml->GetSym.
 #pragma once
-#include <cstdint>
 
-namespace offs {
+namespace syms {
 
-// --- دوال داخل libGTASA.so (الإزاحة عن قاعدة المكتبة، لا العنوان المطلق) ---
-// دالة تُستدعى لكل شخصية كل إطار بعد تحديث الأنيميشن (مثلاً PreRender أو ProcessControl للـ CPed).
-constexpr uintptr_t CPed_PreRender = 0x0;   // TODO
+// CPed::PreRender()  -- تُستدعى لكل شخصية معروضة كل إطار
+constexpr const char* PED_PRERENDER   = "_ZN4CPed9PreRenderEv";
 
-// --- حقول داخل كائن CPed (إزاحات بالبايت) ---
-constexpr size_t PED_MOVE_SPEED   = 0x0;    // TODO: بداية CVector m_vecMoveSpeed (x,y,z)
-constexpr size_t PED_FLAGS_ONGND  = 0x0;    // TODO: بايت/بت يدل على أنه واقف على الأرض
-constexpr unsigned PED_ONGND_MASK = 0x0;    // TODO
+// CPed::GetBonePosition(RwV3d& out, unsigned int boneId, bool updateSkinBones)
+constexpr const char* PED_GETBONEPOS  = "_ZN4CPed15GetBonePositionER5RwV3djb";
 
-inline bool Ready() {
-    return CPed_PreRender && PED_MOVE_SPEED && PED_FLAGS_ONGND && PED_ONGND_MASK;
-}
+// رقم عظمة نتتبعها لحساب سرعة الجسم. أي عظمة من الجذع تصلح للسرعة.
+// (عند الحاجة لعظمة الرأس لاحقاً سنعاير الأرقام بالتسجيل.)
+constexpr unsigned TRACK_BONE = 3;
 
-} // namespace offs
+} // namespace syms
